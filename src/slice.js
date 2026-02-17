@@ -18,7 +18,7 @@ export const UserLogin = createAsyncThunk('UserLogin', async({ email, password }
         {
             withCredentials: true
         });
-        console.log(email,password);
+        
         return res.data;
     } catch (error) {
         console.log("error", error);
@@ -50,6 +50,47 @@ export const interviewInsert = createAsyncThunk('interviewInsert', async( Produc
     }
 })
 
+export const productdataFetch = createAsyncThunk('productdataFetch', async( selectData ) => {
+    try {
+        const res = await axios.get(`http://localhost:9000/interview/getdata`,{
+            params:{
+                page:selectData.page,
+                limit:selectData.limit
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.log("error",error);
+        return error;
+    }
+})
+
+
+export const productEdit = createAsyncThunk('productEdit', async({ProductData, editid}) => {
+    try {
+        const res = await axios.put(`http://localhost:9000/interview/updatedata`,{
+            ProductData,
+            editid
+        });
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        return error;
+    }
+})
+
+export const productRemove = createAsyncThunk('productRemove', async( id ) => {
+    try {
+        const res = await axios.delete(`http://localhost:9000/interview/deletedata`,{
+            data: { id }
+        });
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        return error;
+    }
+})
+
 const AppSlice = createSlice({
     name:"n8n_ai",
     initialState:{
@@ -63,6 +104,81 @@ const AppSlice = createSlice({
 
     },
     extraReducers:(builder) => {
+
+        builder.addCase(productRemove.pending, (state) => {
+            state.isloading = true;
+            state.iserror = false;
+        });
+        builder.addCase(productRemove.fulfilled, (state,action) => {
+            state.isloading = false;
+
+            if(!Array.isArray(state.interview)){
+                state.interview = [];
+            }
+
+            state.interview = state.interview.filter((val) => {
+                val.id !== action.payload.id
+            })
+
+        });
+        builder.addCase(productRemove.rejected, (state,action) => {
+            state.isloading = false;
+            state.iserror = true;
+            console.log("err", action);
+        });
+
+        builder.addCase(productEdit.pending, (state) => {
+            state.isloading = true;
+            state.iserror = false;
+        });
+        builder.addCase(productEdit.fulfilled, (state,action) => {
+            state.isloading = false;
+
+            if(!Array.isArray(state.interview)){
+                state.interview = [];
+            }
+
+            const update = action.payload;
+
+            const edit = state.interview.findIndex((val) => {
+                val.id == update.id
+            });
+
+            if (edit !== -1) {
+                state.interview[edit] = {
+                    ...state.interview[edit],
+                    ...update
+                }
+            } else {
+                state.interview.push(update);
+            }
+        });
+        builder.addCase(productEdit.rejected, (state,action) => {
+            state.isloading = false;
+            state.iserror = true;
+            console.log("err", action);
+        })  
+
+
+        builder.addCase(productdataFetch.pending, (state) => {
+            state.isloading = true;
+            state.iserror = false;
+        });
+        builder.addCase(productdataFetch.fulfilled, (state, action) => {
+            state.isloading = true;
+
+            if(!Array.isArray(state.interview)){
+                state.interview = [];
+            }
+
+            state.interview = action.payload;
+        });
+        builder.addCase(productdataFetch.rejected, (state, action) => {
+            state.isloading = false;
+            state.iserror = true;
+            console.log("err",action);
+        })
+
 
         builder.addCase(interviewInsert.pending, (state) => {
             state.isloading = true;
