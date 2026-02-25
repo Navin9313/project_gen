@@ -91,6 +91,26 @@ export const productRemove = createAsyncThunk('productRemove', async( id ) => {
     }
 })
 
+export const productimageInsert = createAsyncThunk('productimageInsert', async( formdata ) => {
+    try {
+        const res = await axios.post(`http://localhost:9000/interview/image/insert`, formdata);
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        return error;
+    }
+})
+
+export const productimageShow = createAsyncThunk('productimageShow', async() => {
+    try {
+        const res = await axios.get('http://localhost:9000/interview/image/get');
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        return error;
+    }
+})
+
 const AppSlice = createSlice({
     name:"n8n_ai",
     initialState:{
@@ -104,6 +124,46 @@ const AppSlice = createSlice({
 
     },
     extraReducers:(builder) => {
+
+        builder.addCase(productimageShow.pending, (state) => {
+            state.isloading = true;
+            state.iserror = false;
+        });
+        builder.addCase(productimageShow.fulfilled, (state, action) => {
+            state.isloading = false;
+
+            if(!Array.isArray(state.interview)){
+                state.interview = [];
+            }
+
+            state.interview = action.payload;
+        });
+        builder.addCase(productimageShow.rejected, (state, action) => {
+            state.isloading = false;
+            state.iserror = true;
+            console.log("err", action);
+        })
+
+
+        builder.addCase(productimageInsert.pending, (state) => {
+            state.isloading = true;
+            state.iserror = false;
+        });
+        builder.addCase(productimageInsert.fulfilled, (state, action) => {
+            state.isloading = false;
+
+            if(!Array.isArray(state.interview)){
+                state.interview = [];
+            }
+
+            state.interview.push(action.payload);
+        });
+        builder.addCase(productimageInsert.rejected, (state, action) => {
+            state.isloading = false;
+            state.iserror = true;
+            console.log("error", action);
+        });
+
 
         builder.addCase(productRemove.pending, (state) => {
             state.isloading = true;

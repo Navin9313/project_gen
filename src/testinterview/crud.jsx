@@ -104,7 +104,7 @@ const CRUD = () => {
             const res = removeAction.payload;
 
             handlegetdata();
-            console.log(res);
+            // console.log(res);
         }
     }
     
