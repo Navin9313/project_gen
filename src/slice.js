@@ -132,6 +132,17 @@ export const productimageShow = createAsyncThunk('productimageShow', async() => 
     }
 })
 
+export const productimageUpdate = createAsyncThunk('productimageUpdate', async(formdata) => {
+    try {
+        const res = await ApiClient.put(`/interview/image/update`, formdata);
+        console.log(res);
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        throw error;
+    }
+})
+
 const AppSlice = createSlice({
     name:"n8n_ai",
     initialState:{
@@ -147,6 +158,40 @@ const AppSlice = createSlice({
 
     },
     extraReducers:(builder) => {
+
+        builder.addCase(productimageUpdate.pending, (state) => {
+            state.isloading = true;
+            state.iserror = false;
+        });
+        builder.addCase(productimageUpdate.fulfilled, (state, action) => {
+            state.isloading = false;
+
+            if(!Array.isArray(state.interview)){
+                state.interview = [];
+            }
+
+            const updateId = action.payload;
+
+            const index = state.interview.findIndex((val) => (
+                val.id === updateId.id
+            ));
+
+            if(index !== -1){
+                state.interview[index] = {
+                    ...state.interview[index],
+                    ...updateId
+                }
+            }else{
+                state.interview.push(action.payload);
+            }
+             
+        });
+        builder.addCase(productimageUpdate.rejected, (state, action) => {
+            state.isloading = false;
+            state.iserror = true;
+            console.log("err", action.payload);
+        });
+
 
         builder.addCase(productimageShow.pending, (state) => {
             state.isloading = true;

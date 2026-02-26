@@ -39,20 +39,22 @@ const Asider = () => {
       </div>
 
       {/* Menu Section */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div className="flex-1 overflow-y-auto space-y-2">
 
         {menus.map((menu, index) => (
           <NavLink to={menu.route} className="text-none">
             <div
               key={index}
               onClick={() => setActive(menu.name)}
-              className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-ease-out duration-200
+              className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-ease-out duration-200
                 ${active === menu.name 
                   ? "bg-blue-600 text-white shadow-md" 
                   : "hover:bg-gray-700 hover:text-white"
                 }`}
             >
-              {menu.icon}
+              <p className="text-[30px]">
+                {menu.icon}
+              </p>
               <span className="text-[15px] font-medium">
                 {menu.name}
               </span>

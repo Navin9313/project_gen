@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { productimageInsert, productimageShow } from "../slice";
+import { productimageInsert, productimageShow, productimageUpdate } from "../slice";
 
 const ImageCrud = () => {
 
@@ -13,7 +13,7 @@ const ImageCrud = () => {
         image: null,
         description: ""
     })
-    
+    const [editId, seteditId] = useState(null);
     const [previewImage, setpreviewImage] = useState(null);
 
     const handleData = (e) => {
@@ -32,14 +32,17 @@ const ImageCrud = () => {
 
         formdata.append('name', data.name);
         formdata.append('description', data.description);
-        formdata.append('image', data.image);
+        
+        if(data.image){
+            formdata.append('image', data.image);
+        }
 
         const addAction = await dispatch(productimageInsert(formdata));
 
         if(productimageInsert.fulfilled.match(addAction)){
             const res = addAction.payload;
             showImage();
-            console.log(res);
+            // console.log(res);
         }
     }
 
@@ -56,6 +59,46 @@ const ImageCrud = () => {
     useEffect(()=>{
         showImage();
     },[]);
+
+
+    const handleEdit = (val) => {
+        seteditId(val.id);
+        setdata({
+            name: val.product_name,
+            image: null,
+            description: val.description
+        })
+        setpreviewImage(`http://localhost:9000/uploads/${val.image}`);
+    }
+
+    const handleUpdate = async() => {
+
+        const formdata = new FormData();
+        formdata.append("id", editId);
+        formdata.append("name", data.name);
+        formdata.append("description", data.description);
+
+        if(data.image){
+            formdata.append("image", data.image);
+        }
+
+        const editAction = await dispatch(productimageUpdate(formdata));
+
+        if(productimageUpdate.fulfilled.match(editAction)){
+            const res = editAction.payload;
+            showImage();
+            // console.log(res);
+        }
+
+        setdata({
+            name: "",
+            image: null,
+            description: ""
+        });
+
+        setpreviewImage(null);
+        seteditId(null);
+    }
 
     return(
         <div className="row p-7 ">
@@ -92,6 +135,9 @@ const ImageCrud = () => {
                     </div>
                     <div className="row mt-3">
                         <button className="btn btn-danger w-100" onClick={addImage}>Submit</button>
+                    </div>
+                    <div className="row mt-3">
+                        <button className="btn btn-primary w-100" onClick={handleUpdate}>Edit</button>
                     </div>
                 </div>
             </div>
@@ -137,7 +183,7 @@ const ImageCrud = () => {
                                             <button className="btn btn-danger btn-sm">Delete</button>
                                         </td>
                                         <td>
-                                            <button className="btn btn-primary btn-sm">Edit</button>
+                                            <button className="btn btn-primary btn-sm" onClick={()=>handleEdit(val)}>Edit</button>
                                         </td>
                                     </tr>
                                 ))
