@@ -6,27 +6,30 @@ import Dashboard from './dashboard/dashboard'
 import CRUD from './testinterview/crud'
 import ImageCrud from './testinterview/imagecrud'
 import Asider from './asider'
+import { useDispatch } from 'react-redux'
+import { useEffect } from 'react'
+import { verifyUser } from './slice'
+import PrivateRoute from './PrivateRoute'
+import DashboardLayout from './dashboardlayout'
 
 function AppContent(){
   
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(verifyUser());
+  },[]);
   
   return(
     <div>
       <Routes>
         <Route path='/' element={ <Register /> } />
         <Route path='/login' element={ <LoginPage /> } />
-
-        <div className="grid grid-cols-[30%_auto]">
-            <div>
-              <Asider />
-            </div>
-            <div>
-              <Route path='/dashboard' element={ <Dashboard /> } />
-              <Route path='/crud' element={ <CRUD /> } />
-              <Route path='/image' element={ <ImageCrud /> } />
-            </div>
-        </div>
-
+        <Route element={ <PrivateRoute> <DashboardLayout /> </PrivateRoute> }>
+          <Route path='/dashboard' element={ <Dashboard /> } />
+          <Route path='/crud' element={ <CRUD /> } />
+          <Route path='/image' element={ <ImageCrud /> } />
+        </Route>
       </Routes>
     </div>
   )

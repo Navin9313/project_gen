@@ -1,5 +1,26 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import axios from 'axios';
+import ApiClient from "./api";
+
+export const verifyUser = createAsyncThunk('verifyUser', async() => {
+    try {
+        const res = await ApiClient.get("/auth/verify");
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        throw error;
+    }
+})
+
+export const LogOut = createAsyncThunk('LogOut', async() => {
+    try {
+        const res = await ApiClient.post("/auth/logout");
+        return res.data;
+    } catch (error) {
+        console.log("err", error);
+        throw error;
+    }
+})
 
 export const UserRegister = createAsyncThunk('UserRegister', async( form, { rejectWithValue } ) => {
     try {
@@ -28,7 +49,7 @@ export const UserLogin = createAsyncThunk('UserLogin', async({ email, password }
 
 export const ImageCreate = createAsyncThunk('ImageCreate', async( prompt ) => {
     try {
-        const res = await axios.post("http://localhost:9000/register/image", {
+        const res = await ApiClient.post("/register/image", {
             prompt
         });
         return res.data;
@@ -40,7 +61,7 @@ export const ImageCreate = createAsyncThunk('ImageCreate', async( prompt ) => {
 
 export const interviewInsert = createAsyncThunk('interviewInsert', async( ProductData ) => {
     try {
-        const res = await axios.post(`http://localhost:9000/interview/insert`,
+        const res = await ApiClient.post(`/interview/insert`,
             ProductData
         );
         return res.data;
@@ -52,7 +73,7 @@ export const interviewInsert = createAsyncThunk('interviewInsert', async( Produc
 
 export const productdataFetch = createAsyncThunk('productdataFetch', async( selectData ) => {
     try {
-        const res = await axios.get(`http://localhost:9000/interview/getdata`,{
+        const res = await ApiClient.get(`/interview/getdata`,{
             params:{
                 page:selectData.page,
                 limit:selectData.limit
@@ -68,7 +89,7 @@ export const productdataFetch = createAsyncThunk('productdataFetch', async( sele
 
 export const productEdit = createAsyncThunk('productEdit', async({ProductData, editid}) => {
     try {
-        const res = await axios.put(`http://localhost:9000/interview/updatedata`,{
+        const res = await ApiClient.put(`/interview/updatedata`,{
             ProductData,
             editid
         });
@@ -81,7 +102,7 @@ export const productEdit = createAsyncThunk('productEdit', async({ProductData, e
 
 export const productRemove = createAsyncThunk('productRemove', async( id ) => {
     try {
-        const res = await axios.delete(`http://localhost:9000/interview/deletedata`,{
+        const res = await ApiClient.delete(`/interview/deletedata`,{
             data: { id }
         });
         return res.data;
@@ -93,7 +114,7 @@ export const productRemove = createAsyncThunk('productRemove', async( id ) => {
 
 export const productimageInsert = createAsyncThunk('productimageInsert', async( formdata ) => {
     try {
-        const res = await axios.post(`http://localhost:9000/interview/image/insert`, formdata);
+        const res = await ApiClient.post(`/interview/image/insert`, formdata);
         return res.data;
     } catch (error) {
         console.log("err", error);
@@ -103,7 +124,7 @@ export const productimageInsert = createAsyncThunk('productimageInsert', async( 
 
 export const productimageShow = createAsyncThunk('productimageShow', async() => {
     try {
-        const res = await axios.get('http://localhost:9000/interview/image/get');
+        const res = await ApiClient.get('/interview/image/get');
         return res.data;
     } catch (error) {
         console.log("err", error);
@@ -118,6 +139,8 @@ const AppSlice = createSlice({
         image : [],
         isloading: false,
         iserror: false,
+        isLoggIn: false,
+        isloginloading: false,
         interview : []
     },
     reducers:{
@@ -312,6 +335,23 @@ const AppSlice = createSlice({
             state.iserror = true;
             console.log("err",action);
         });
+
+        builder.addCase(verifyUser.pending, (state) => {
+            state.isLoggIn = false;
+            state.isloginloading = true;
+        });
+        builder.addCase(verifyUser.fulfilled, (state, action) => {
+            state.isLoggIn = true;
+            state.isloginloading = false;
+        });
+        builder.addCase(verifyUser.rejected, (state, action) => {
+            state.isLoggIn = false;
+            state.isloginloading = false;
+        });
+
+        builder.addCase(LogOut.fulfilled, (state) => {
+            state.isLoggIn = false;
+        })
     }
 })
 

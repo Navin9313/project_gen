@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { UserLogin } from '../slice'
+import { UserLogin, verifyUser } from '../slice'
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
@@ -19,6 +19,7 @@ const LoginPage = () => {
         const resultAction = await dispatch(UserLogin({ email, password }));
 
         if(UserLogin.fulfilled.match(resultAction)){
+            // await dispatch(verifyUser());
             navigate('/dashboard');
         }
     };
